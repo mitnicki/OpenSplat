@@ -163,6 +163,16 @@ torch::Tensor Model::forward(Camera& cam, int step){
         radii = p[2];
         conics = p[3];
         numTilesHit = p[4];
+        
+        // DEBUG: print radii stats on first call
+        static bool firstCall = true;
+        if (firstCall) {
+            firstCall = false;
+            auto r_cpu = radii.cpu();
+            int nonzero = (r_cpu > 0).sum().item<int>();
+            int total = r_cpu.numel();
+            std::cout << "[DEBUG] HIP radii: " << nonzero << "/" << total << " non-zero, sum=" << r_cpu.sum().item<int>() << std::endl;
+        }
         #else
             throw std::runtime_error("GPU support not built, use --cpu");
         #endif

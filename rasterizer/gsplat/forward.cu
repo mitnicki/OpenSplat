@@ -35,7 +35,7 @@ __global__ void project_gaussians_forward_kernel(
     float3* __restrict__ conics,
     int32_t* __restrict__ num_tiles_hit
 ) {
-    unsigned idx = cg::this_grid().thread_rank(); // idx of thread within grid
+    unsigned idx = blockIdx.x * blockDim.x + threadIdx.x; // idx of thread within grid
     if (idx >= num_points) {
         return;
     }
@@ -114,7 +114,7 @@ __global__ void map_gaussian_to_intersects(
     int64_t* __restrict__ isect_ids,
     int32_t* __restrict__ gaussian_ids
 ) {
-    unsigned idx = cg::this_grid().thread_rank();
+    unsigned idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= num_points)
         return;
     if (radii[idx] <= 0)
@@ -148,7 +148,7 @@ __global__ void map_gaussian_to_intersects(
 __global__ void get_tile_bin_edges(
     const int num_intersects, const int64_t* __restrict__ isect_ids_sorted, int2* __restrict__ tile_bins
 ) {
-    unsigned idx = cg::this_grid().thread_rank();
+    unsigned idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= num_intersects)
         return;
     // save the indices where the tile_id changes

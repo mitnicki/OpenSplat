@@ -376,7 +376,7 @@ __global__ void project_gaussians_backward_kernel(
     float3* __restrict__ v_scale,
     float4* __restrict__ v_quat
 ) {
-    unsigned idx = cg::this_grid().thread_rank(); // idx of thread within grid
+    unsigned idx = blockIdx.x * blockDim.x + threadIdx.x; // idx of thread within grid
     if (idx >= num_points || radii[idx] <= 0) {
         return;
     }

@@ -26,7 +26,7 @@ namespace cg = cooperative_groups;
 __global__ void compute_cov2d_bounds_kernel(
     const unsigned num_pts, const float* __restrict__ covs2d, float* __restrict__ conics, float* __restrict__ radii
 ) {
-    unsigned row = cg::this_grid().thread_rank();
+    unsigned row = blockIdx.x * blockDim.x + threadIdx.x;
     if (row >= num_pts) {
         return;
     }
