@@ -25,14 +25,21 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# ROCm 7 removed the /opt/rocm/hip directory. The HIP linker driver resolves
+# clang++ via the literal path /opt/rocm/hip/../llvm/bin/clang++, which fails
+# when /opt/rocm/hip is missing. Recreating it lets ".." resolve to /opt/rocm/llvm.
+RUN mkdir -p /opt/rocm/hip
+
 # Configure and build \
-RUN source activate py_3.12 && \
+RUN source /opt/venv/bin/activate && \
+    pip install --quiet cmake && \
     mkdir build && \
     cd build && \
     cmake .. \
       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
       -DGPU_RUNTIME=HIP \
       -DHIP_ROOT_DIR=/opt/rocm \
+      -DCMAKE_HIP_COMPILER=/opt/rocm/llvm/bin/amdclang++ \
       -DOPENSPLAT_BUILD_SIMPLE_TRAINER=ON \
       -DCMAKE_PREFIX_PATH=/opt/venv/lib/python3.12/site-packages/torch \
       -DCMAKE_INSTALL_PREFIX=/code/install && \
